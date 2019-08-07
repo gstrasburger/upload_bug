@@ -3,7 +3,8 @@ from flask import Blueprint, flash, request, redirect, url_for, send_from_direct
 from werkzeug.utils import secure_filename
 
 bp = Blueprint('upload', __name__)
-UPLOAD_FOLDER = 'ORM/uploads'
+UPLOAD_FOLDER_REL = 'ORM/uploads'
+UPLOAD_FOLDER_ABS = './ORM/uploads/'
 ALLOWED_EXTENSIONS = {'zip'}
 
 #a function which determines if a file is of the allowed type
@@ -26,16 +27,16 @@ def upload_file():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
-            return redirect(url_for('upload.upload_file', filename=filename))
+            file.save(os.path.join(UPLOAD_FOLDER_REL, filename))
+            return redirect(url_for('edit.edit_file', filename=filename))
 
     return render_template('uploads/upload_file.html')
 
 @bp.route('/uploads/<path:filename>', methods=['GET','POST'])
 def uploaded_file(filename):
-    print(filename+" "+UPLOAD_FOLDER)
+    print(filename+" "+UPLOAD_FOLDER_ABS)
     try:
-        return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+        return send_from_directory(UPLOAD_FOLDER_ABS, filename, as_attachment=True)
     except Exception as e:
         print(e)
         abort(404)
